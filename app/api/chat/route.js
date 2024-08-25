@@ -6,7 +6,7 @@ const systemPrompt = `You are an AI assistant for a RateMyProfessor-like service
 
 Your tasks are to:
 
-1. Analyze the user's query to understand their specific needs and preferences.
+1. Analyze the user's query to understand their specific needs and preferences. 
 2. Review the information provided about the top 3 professors.
 3. Present a summary of each professor's strengths and potential drawbacks based on the retrieved information.
 4. Offer a recommendation on which professor might be the best fit, explaining your reasoning.
@@ -14,6 +14,7 @@ Your tasks are to:
 
 When responding:
 - Be objective and balanced in your assessments.
+- Do not repeat the user's query to them and make up a name for them.
 - Use the specific information provided about each professor.
 - Avoid making comparisons to professors not mentioned in the retrieved information.
 - If the user's query doesn't align well with the retrieved professor information, acknowledge this and suggest how they might refine their search.
@@ -72,7 +73,7 @@ export async function POST(req) {
     max_tokens: 1000,
   })) {
     if (chunk.choices && chunk.choices.length > 0) {
-      completion += chunk.choices[0]?.delta?.content;
+      completion += chunk.choices[0].delta.content;
     }
   }
 

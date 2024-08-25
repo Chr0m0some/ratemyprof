@@ -35,10 +35,6 @@ export default function Home() {
         const text = decoder.decode(value || new Uint8Array(), {
           stream: true,
         });
-        // if (typeof text === 'string') {
-        //   console.log("Expected text:", text);
-        //   return; // or handle the error appropriately
-        // }
         setMessages((messages) => {
           let lastMessage = messages[messages.length - 1];
           let otherMessages = messages.slice(0, messages.length - 1);
@@ -52,7 +48,7 @@ export default function Home() {
       });
     });
   };
-  console.log("Messages:", messages);
+  // console.log("Messages:", messages);
   return (
     <Box
       width="100vw"
