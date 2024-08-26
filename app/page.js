@@ -57,7 +57,10 @@ export default function Home() {
       flexDirection="column"
       justifyContent="center"
       alignItems="center"
+      sx={{ backgroundImage: 'url(/background1.jpg)', backgroundSize: 'cover' }}
     >
+
+      <h1 className="multicolor-text">Rate My Professor</h1>
       <Stack
         direction={"column"}
         width="500px"
@@ -65,6 +68,11 @@ export default function Home() {
         border="1px solid black"
         p={2}
         spacing={3}
+        borderRadius={8}
+        sx={{
+          boxShadow: '0px 4px 20px rgba(255, 105, 180, 0.5), 0px 0px 10px rgba(128, 0, 128, 0.3)', 
+          mt: 4
+        }}
       >
         <Stack
           direction={"column"}
@@ -83,9 +91,9 @@ export default function Home() {
             >
               <Box
                 bgcolor={
-                  message.role === "assistant"
-                    ? "primary.main"
-                    : "secondary.main"
+                  message.role === 'assistant'
+                    ? 'rgba(30, 144, 255, 0.2)'  
+                    : 'rgba(156, 39, 176, 0.2)' 
                 }
                 color="white"
                 borderRadius={16}
@@ -98,10 +106,29 @@ export default function Home() {
         </Stack>
         <Stack direction={"row"} spacing={2}>
           <TextField
-            label="Message"
+            label="Message..."
             fullWidth
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#1876d2', // Border color when the field is not focused
+                },
+                '&:hover fieldset': {
+                  borderColor: '#1876d2', // Border color when the field is hovered
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#1876d2', // Border color when the field is focused
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#1876d2', // Label color
+              },
+              '& .MuiInputBase-input': {
+                color: '#1876d2', // Input text color
+              }
+            }}
           />
           <Button variant="contained" onClick={sendMessage}>
             Send
