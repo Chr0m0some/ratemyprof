@@ -10,8 +10,13 @@ export default function Home() {
     },
   ]);
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false)
+
 
   const sendMessage = async () => {
+    if (!message.trim() || isLoading) return;
+    setIsLoading(true)
+
     setMessage("");
     setMessages((messages) => [
       ...messages,
@@ -47,6 +52,7 @@ export default function Home() {
         return reader.read().then(processText);
       });
     });
+    setIsLoading(false)
   };
   // console.log("Messages:", messages);
   return (
@@ -130,8 +136,19 @@ export default function Home() {
               }
             }}
           />
-          <Button variant="contained" onClick={sendMessage}>
-            Send
+          <Button 
+          variant="contained" 
+          onClick={sendMessage}
+          disabled={isLoading}
+          className="button glowing-border"
+            sx={{
+              fontSize: '2em', // Ensure this matches the CSS font-size
+              backgroundColor: 'transparent', // Override default background color
+              border: '2px solid #fff', // Match the CSS border
+              color: '#fff', // Match the CSS text color
+            }}
+          >
+            {isLoading ? 'Sending...' : 'Send'}
           </Button>
         </Stack>
       </Stack>
