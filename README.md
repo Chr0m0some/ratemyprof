@@ -36,8 +36,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
 ## Team members
-
-Mehdi Atmani
-Khanh Lee
-Chris Lee
-Christopher Magnuson
+1. Mehdi Atmani
+2. Khanh Lee
+3. Chris Lee
+4. Christopher Magnuson
