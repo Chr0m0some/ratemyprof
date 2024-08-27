@@ -92,6 +92,6 @@ export async function POST(req) {
       }
     },
   });
-  console.log('finished loading')
+  // console.log('finished loading')
   return new NextResponse(stream);
 }
