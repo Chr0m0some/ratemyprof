@@ -41,6 +41,28 @@ export async function POST(req) {
       const lastMessageContent = batch[batch.length - 1].content; // Get the last message content
       const lastDataWithoutLastMessage = batch.slice(0, batch.length - 1);
 
+      // Extract embedding for the last message content
+      const embedding = await inference.featureExtraction({
+        model: "dunzhang/stella_en_1.5B_v5",
+        inputs: lastMessageContent,
+      });
+
+      // Query Pinecone with the extracted embedding
+      const results = await index.query({
+        topK: 3,
+        includeMetadata: true,
+        vector: embedding,
+      });
+
+      // Construct a result string from the query results
+      let resultString = "Returned results from vector db:";
+      results.matches.forEach((match) => {
+        resultString += `\nProfessor: ${match.id}\nReview: ${match.metadata.review}\nSubject: ${match.metadata.subject}\nStars: ${match.metadata.stars}\n`;
+      });
+
+      // Combine the result string with the last message content
+      const augmentedMessageContent = lastMessageContent + resultString;
+
       const response = await inference.chatCompletionStream({
         model: "mistralai/Mistral-7B-Instruct-v0.2",
         messages: [
@@ -50,7 +72,7 @@ export async function POST(req) {
           },
           {
             role: "user",
-            content: lastMessageContent,
+            content: augmentedMessageContent,
           },
           ...lastDataWithoutLastMessage,
         ],
