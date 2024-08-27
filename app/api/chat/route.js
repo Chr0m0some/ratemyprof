@@ -26,10 +26,14 @@ Remember, your goal is to assist students in making informed decisions about the
 export async function POST(req) {
   try {
     const data = await req.json();
-    console.log(data)
+    console.log(data);
+    const pc = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY,
+    });
+    const index = pc.index("rag").namespace("ns1"); // Initialize the index here
     const batchSize = 5; // Define your batch size
     const batches = [];
-    
+
     // Create batches of messages
     for (let i = 0; i < data.length; i += batchSize) {
       const batch = data.slice(i, i + batchSize);
@@ -37,7 +41,7 @@ export async function POST(req) {
     }
 
     let completion = "";
-    
+
     for (const batch of batches) {
       const lastMessageContent = batch[batch.length - 1].content; // Get the last message content
       const lastDataWithoutLastMessage = batch.slice(0, batch.length - 1);
@@ -106,6 +110,9 @@ export async function POST(req) {
     return new NextResponse(stream);
   } catch (error) {
     console.error("Error in POST:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
