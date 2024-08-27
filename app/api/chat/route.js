@@ -31,7 +31,7 @@ export async function POST(req) {
       apiKey: process.env.PINECONE_API_KEY,
     });
     const index = pc.index("rag").namespace("ns1"); // Initialize the index here
-    const batchSize = 5; // Define your batch size
+    const batchSize = 3; // Define your batch size
     const batches = [];
 
     // Create batches of messages
