@@ -34,7 +34,7 @@ export async function POST(req) {
     model: "dunzhang/stella_en_1.5B_v5",
     inputs: text,
   });
-  //   console.log(embedding)
+    console.log(embedding)
   const results = await index.query({
     topK: 3,
     includeMetadata: true,
