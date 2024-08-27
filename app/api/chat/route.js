@@ -26,6 +26,7 @@ Remember, your goal is to assist students in making informed decisions about the
 export async function POST(req) {
   try {
     const data = await req.json();
+    console.log(data)
     const batchSize = 5; // Define your batch size
     const batches = [];
     
