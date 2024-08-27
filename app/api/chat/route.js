@@ -24,74 +24,65 @@ When responding:
 Remember, your goal is to assist students in making informed decisions about their education while relying on the information provided through the RAG system. Always encourage students to do additional research and consider multiple factors when choosing a professor.`;
 
 export async function POST(req) {
-  const data = await req.json();
-  const pc = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY,
-  });
-  const index = pc.index("rag").namespace("ns1");
-  const text = data[data.length - 1].content;
-  const embedding = await inference.featureExtraction({
-    model: "dunzhang/stella_en_1.5B_v5",
-    inputs: text,
-  });
-    console.log(embedding)
-  const results = await index.query({
-    topK: 3,
-    includeMetadata: true,
-    vector: embedding,
-  });
-
-  let resultString = "Returned results from vector db done automatically:";
-  results.matches.forEach((match) => {
-    resultString += `\n
-    Professor: ${match.id}
-    Review: ${match.metadata.review}
-    Subject: ${match.metadata.subject}
-    Stars: ${match.metadata.stars}
-    \n\n
-    `;
-  });
-
-  const lastMessage = data[data.length - 1];
-  const lastMessageContent = lastMessage.content + resultString;
-  const lastDataWithoutLastMessage = data.slice(0, data.length - 1);
-
-  let completion = "";
-  for await (const chunk of inference.chatCompletionStream({
-    model: "mistralai/Mistral-7B-Instruct-v0.2",
-    messages: [
-      {
-        role: "system",
-        content: systemPrompt,
-      },
-      {
-        role: "user",
-        content: lastMessageContent,
-      },
-      ...lastDataWithoutLastMessage,
-    ],
-    max_tokens: 1000,
-  })) {
-    if (chunk.choices && chunk.choices.length > 0) {
-      completion += chunk.choices[0].delta.content;
+  try {
+    const data = await req.json();
+    const batchSize = 5; // Define your batch size
+    const batches = [];
+    
+    // Create batches of messages
+    for (let i = 0; i < data.length; i += batchSize) {
+      const batch = data.slice(i, i + batchSize);
+      batches.push(batch);
     }
-  }
 
-  const stream = new ReadableStream({
-    async start(controller) {
-      const encoder = new TextEncoder();
-      try {
-        if (completion) {
-          const text = encoder.encode(completion);
-          controller.enqueue(text);
+    let completion = "";
+    
+    for (const batch of batches) {
+      const lastMessageContent = batch[batch.length - 1].content; // Get the last message content
+      const lastDataWithoutLastMessage = batch.slice(0, batch.length - 1);
+
+      const response = await inference.chatCompletionStream({
+        model: "mistralai/Mistral-7B-Instruct-v0.2",
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: lastMessageContent,
+          },
+          ...lastDataWithoutLastMessage,
+        ],
+        max_tokens: 1000,
+      });
+
+      for await (const chunk of response) {
+        if (chunk.choices && chunk.choices.length > 0) {
+          completion += chunk.choices[0].delta.content;
         }
-      } catch (err) {
-        controller.error(err);
-      } finally {
-        controller.close();
       }
-    },
-  });
-  // console.log('finished loading')
-  return new NextResponse(stream);
+    }
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        try {
+          if (completion) {
+            const text = encoder.encode(completion);
+            controller.enqueue(text);
+          }
+        } catch (err) {
+          controller.error(err);
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new NextResponse(stream);
+  } catch (error) {
+    console.error("Error in POST:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }
